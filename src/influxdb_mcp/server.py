@@ -421,6 +421,7 @@ def main():
     try:
         # Check if we should run as a one-off CLI command
         if len(sys.argv) > 1:
+            # Handle CLI subcommands
             command = sys.argv[1]
             args = sys.argv[2:]
 
@@ -451,30 +452,17 @@ def main():
                 print(json.dumps(tool_list, indent=2, ensure_ascii=False))
                 return
 
-            print(f"Error: Command '{command}' not found.")
-            sys.exit(1)
+            # If no custom tool matches, let FastMCP handle any built-in CLI features
+            # or report error if it's clearly a failed custom command
+            if not command.startswith("-"):
+                print(f"Error: Command '{command}' not found.", file=sys.stderr)
+                sys.exit(1)
 
+        # Standard MCP Server Mode
         logger.info("Starting InfluxDB MCP server...")
 
-        # Test configuration and connection on startup
-        try:
-            config = get_config()
-            logger.info(f"Connecting to InfluxDB at {config.url}")
-
-            # Test connection
-            manager = get_influxdb_manager()
-            connection_status = manager.test_connection()
-
-            if connection_status["status"] == "connected":
-                logger.info("InfluxDB connection successful")
-            else:
-                logger.error(f"InfluxDB connection failed: {connection_status.get('message', 'Unknown error')}")
-
-        except Exception as e:
-            logger.error(f"Failed to initialize InfluxDB connection: {e}")
-            logger.warning("Server will start but InfluxDB operations may fail")
-
-        # Start the FastMCP server
+        # Start the FastMCP server immediately to avoid initialization timeouts
+        # Configuration and connection will be handled lazily when tools are invoked
         mcp.run(transport=MCP_TRANSPORT)  # type: ignore
 
     except KeyboardInterrupt:
