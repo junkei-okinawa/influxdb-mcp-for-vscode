@@ -16,7 +16,33 @@ uv sync
 uv run python -m influxdb_mcp
 ```
 
+### Using as a CLI Tool (One-off Commands)
+
+You can use the server as a one-off command-line tool. This is useful for scripts or quick checks without keeping a resident server running.
+
+```bash
+# List all tools available
+uv run influxdb-mcp list_tools
+
+# List buckets
+uv run influxdb-mcp list_buckets
+
+# List measurements in a specific bucket
+uv run influxdb-mcp list_measurements <bucket-name>
+
+# Execute a Flux query
+uv run influxdb-mcp execute_flux_query --query 'from(bucket: "my-bucket") |> range(start: -1h)'
+```
+
+### Standalone MCP Server
+
+The server runs as a standard MCP server using `stdio` transport by default, which is compatible with VS Code and other MCP-enabled IDEs.
+
+## Optional Deployment
+
 ### Using Docker
+
+If you prefer to run the server in a containerized environment (e.g., for persistent SSE transport), you can use the provided Docker assets. Note that for VS Code MCP usage, the CLI/Standalone mode above is generally recommended.
 
 ```bash
 # Build and run

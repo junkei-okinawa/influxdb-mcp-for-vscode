@@ -3,8 +3,10 @@ MCP server providing read-only access to InfluxDB v2 database.
 """
 
 import os
+import sys
 import json
 import logging
+import inspect
 from datetime import datetime
 from typing import Dict, Any, Optional
 
@@ -418,6 +420,41 @@ join.time(left: measurement1, right: measurement2)
 def main():
     """Main entry point for the MCP server."""
     try:
+        # Check if we should run as a one-off CLI command
+        if len(sys.argv) > 1:
+            command = sys.argv[1]
+            args = sys.argv[2:]
+
+            # Try to find a matching tool
+            tools = mcp._tool_manager.list_tools()
+            tool = next((t for t in tools if t.name == command), None)
+            if tool:
+                # Prepare keyword arguments for the tool
+                kwargs = {}
+                for i, arg in enumerate(args):
+                    if i % 2 == 0 and arg.startswith("--"):
+                        key = arg.lstrip("-")
+                        if i + 1 < len(args):
+                            kwargs[key] = args[i + 1]
+                    elif i == 0 and not arg.startswith("--"):
+                        # Handle simple positional first argument if it matches first parameter
+                        params = list(inspect.signature(tool.fn).parameters.keys())
+                        if params:
+                            kwargs[params[0]] = arg
+
+                # Execute the tool
+                result = tool.fn(**kwargs)
+                print(json.dumps(result, indent=2, ensure_ascii=False))
+                return
+
+            if command == "list_tools":
+                tool_list = [{"name": t.name, "description": t.description} for t in tools]
+                print(json.dumps(tool_list, indent=2, ensure_ascii=False))
+                return
+
+            print(f"Error: Command '{command}' not found.")
+            sys.exit(1)
+
         logger.info("Starting InfluxDB MCP server...")
 
         # Test configuration and connection on startup
