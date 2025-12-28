@@ -10,16 +10,17 @@ import inspect
 from datetime import datetime
 from typing import Dict, Any, Optional
 
+# Set up logging to stderr explicitly and forcefully
+# This must happen before other imports that might configure logging
+logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s", stream=sys.stderr, force=True)
+logger = logging.getLogger(__name__)
+
 from mcp.server.fastmcp import FastMCP
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from .config import get_config
 from .influxdb_client import InfluxDBManager
-
-# Set up logging
-logging.basicConfig(level=logging.INFO, stream=sys.stderr)
-logger = logging.getLogger(__name__)
 
 # Initialize FastMCP server
 mcp = FastMCP(
