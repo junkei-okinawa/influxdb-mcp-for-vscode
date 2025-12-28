@@ -41,10 +41,10 @@ anomaly detection, correlation analysis, and threshold monitoring.""",
 )
 mcp.settings.host = os.getenv("MCP_LISTEN_HOST", "127.0.0.1")
 mcp.settings.port = int(os.getenv("MCP_LISTEN_PORT", "5001"))  # Default to port 5001 if not set
-MCP_TRANSPORT = os.getenv("MCP_TRANSPORT", "streamable-http").lower()
+MCP_TRANSPORT = os.getenv("MCP_TRANSPORT", "stdio").lower()
 if MCP_TRANSPORT not in ["sse", "streamable-http", "stdio"]:
     raise ValueError(
-        f"Invalid MCP_TRANSPORT: {MCP_TRANSPORT}. Supported modes are 'sse' (deprecated), 'streamable-http' (default) and 'stdio'."
+        f"Invalid MCP_TRANSPORT: {MCP_TRANSPORT}. Supported modes are 'sse' (deprecated), 'streamable-http' and 'stdio' (default)."
     )
 
 # Global InfluxDB manager instance
