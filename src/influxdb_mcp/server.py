@@ -18,7 +18,7 @@ from .config import get_config
 from .influxdb_client import InfluxDBManager
 
 # Set up logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, stream=sys.stderr)
 logger = logging.getLogger(__name__)
 
 # Initialize FastMCP server
